@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import readline from "readline";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import twilio from "twilio";
 
 dotenv.config();
 
@@ -19,7 +20,22 @@ async function generateText(input) {
     }
 }
 
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+async function sendSMS(text) {
+    try {
+        const message = await client.messages.create({
+            body: text,
+            from: process.env.TWILIO_PHONE,
+            to: process.env.USER_PHONE
+        });
+        console.log('Message sent: ', message.sid);
+        return message.sid;
+    } catch (error) {
+        console.error('Error sending message: ', error);
+        throw error;
+    }
+}
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -51,25 +67,40 @@ const userInterface = readline.createInterface({
 
 userInterface.prompt();
 
-const emailTriggers = ['send email', 'send pekka an email', 'send an email', 'send an email to pekka', 'send an email'];
-const smsTriggers = ['send sms', 'send pekka a sms', 'send a sms', 'send a sms to pekka', 'send a sms'];
+const emailTriggers = ['send email', 'send pekka an email', 'send an email', 'send an email to pekka', 'send an email', 'email'];
+const smsTriggers = ['send sms', 'send pekka a sms', 'send a sms', 'send a sms to pekka', 'send a sms', 'sms'];
 
 userInterface.on("line", async (input) => {
     const shouldSendEmail = emailTriggers.some(trigger => input.toLowerCase().includes(trigger));
+    const shouldSendSMS = smsTriggers.some(trigger => input.toLowerCase().includes(trigger));
+    const generatedContent = await generateText(input);
+    if (generatedContent) {
+        if (shouldSendEmail && shouldSendSMS) {
 
-    if (shouldSendEmail) {
-        console.log("Preparing to send email...");
-        const generatedContent = await generateText(input);
-
-        if (generatedContent) {
+            console.log("Preparing to send email and sms...");
             await sendEmail("Generated Content Email", generatedContent);
-        }
+            await sendSMS(generatedContent);
 
-    } else {
-        const generatedContent = await generateText(input);
-        if (generatedContent) {
+        } else if (shouldSendSMS) {
+
+            console.log("Preparing to send SMS...");
+            await sendSMS(generatedContent);
+
+        } else if (shouldSendEmail) {
+
+            console.log("Preparing to send email...");
+            await sendEmail("Generated Content Email", generatedContent);
+
+        } else {
+
+            const generatedContent = await generateText(input);
             console.log(generatedContent);
+
         }
+    } else {
+
+        console.log("Sorry, I couldn't generate content for that input.");
+
     }
 
     userInterface.prompt();
