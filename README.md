@@ -20,3 +20,8 @@ Before you begin, ensure you have the following:
 - **Twilio Account**: Sign up for a Twilio account [here](https://www.twilio.com/try-twilio) and obtain your `Account SID` and `Auth Token`.
 - **Email Account**: Set up an email account for sending emails via SMTP. For Gmail, you will need to enable "less secure app access" or use an app password.
 
+
+## Installation
+- **Clone the repo**
+- **npm install**
+
