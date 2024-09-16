@@ -1,4 +1,4 @@
-# GPT Email and SMS Sender
+# GPT Email and SMS Sender ( CLI )
 
 This project is a versatile utility built as an assignment for my university teacher at Tampere University. It integrates GPT-based text generation with functionalities for sending SMS messages via Twilio and emails via SMTP.
 
