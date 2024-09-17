@@ -1,7 +1,4 @@
-import twilio from "twilio";
-import dotenv from "dotenv";
-
-dotenv.config();
+import twilio from 'twilio';
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -13,9 +10,8 @@ async function sendSMS(text) {
             to: process.env.USER_PHONE
         });
         console.log('Message sent: ', message.sid);
-        return message.sid;
     } catch (error) {
-        console.error('Error sending message: ', error);
+        console.error('Error sending SMS: ', error);
         throw error;
     }
 }

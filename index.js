@@ -1,40 +1,57 @@
-import readline from "readline";
-import generateText from "./generateText.js";
-import sendEmail from "./sendEmail.js";
-import sendSMS from "./sendSMS.js";
+import express from 'express';
+import bodyParser from 'body-parser';
+import generateText from './generateText.js';
+import sendEmail from './sendEmail.js';
+import sendSMS from './sendSMS.js';
+import dotenv from 'dotenv';
 
-const userInterface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
+dotenv.config();
 
-userInterface.prompt();
+const app = express();
+const port = process.env.PORT || 3000;
 
-const emailTriggers = ['send email', 'send pekka an email', 'send an email', 'send an email to pekka', 'send an email', 'email'];
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const emailTriggers = ['send email', 'send pekka an email', 'send an email', 'send an email to pekka', 'send an email'];
 const smsTriggers = ['send sms', 'send pekka a sms', 'send a sms', 'send a sms to pekka', 'send a sms', 'sms'];
 
-userInterface.on("line", async (input) => {
-    const shouldSendEmail = emailTriggers.some(trigger => input.toLowerCase().includes(trigger));
-    const shouldSendSMS = smsTriggers.some(trigger => input.toLowerCase().includes(trigger));
-    const generatedContent = await generateText(input);
-
-    if (generatedContent) {
-        if (shouldSendEmail && shouldSendSMS) {
-            console.log("Preparing to send email and SMS...");
-            await sendEmail("Generated Content Email", generatedContent);
-            await sendSMS(generatedContent);
-        } else if (shouldSendSMS) {
-            console.log("Preparing to send SMS...");
-            await sendSMS(generatedContent);
-        } else if (shouldSendEmail) {
-            console.log("Preparing to send email...");
-            await sendEmail("Generated Content Email", generatedContent);
-        } else {
-            console.log(generatedContent);
-        }
-    } else {
-        console.log("Sorry, I couldn't generate content for that input.");
+// Endpoint to handle text generation and sending email or SMS
+app.post('/send', async (req, res) => {
+    const { input } = req.body;
+    if (!input) {
+        return res.status(400).json({ error: 'Input is required' });
     }
 
-    userInterface.prompt();
+    try {
+        const generatedContent = await generateText(input);
+        if (!generatedContent) {
+            return res.status(500).json({ error: "Failed to generate content" });
+        }
+
+        const lowerCaseInput = input.toLowerCase();
+        const shouldSendEmail = emailTriggers.some(trigger => lowerCaseInput.includes(trigger));
+        const shouldSendSMS = smsTriggers.some(trigger => lowerCaseInput.includes(trigger));
+
+        if (shouldSendEmail && shouldSendSMS) {
+            await sendEmail("Generated Content Email", generatedContent);
+            await sendSMS(generatedContent);
+            return res.json({ message: 'Email and SMS sent successfully' });
+        } else if (shouldSendSMS) {
+            await sendSMS(generatedContent);
+            return res.json({ message: 'SMS sent successfully' });
+        } else if (shouldSendEmail) {
+            await sendEmail("Generated Content Email", generatedContent);
+            return res.json({ message: 'Email sent successfully' });
+        } else {
+            return res.json({ message: generatedContent });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ error: 'An error occurred' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on  http://localhost:${port}`);
 });

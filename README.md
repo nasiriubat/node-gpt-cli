@@ -1,4 +1,4 @@
-# GPT Email and SMS Sender ( CLI )
+# GPT Email and SMS Sender ( Fullstack react-node )
 
 This project is a versatile utility built as an assignment for my university teacher at Tampere University. It integrates GPT-based text generation with functionalities for sending SMS messages via Twilio and emails via SMTP.
 
@@ -24,4 +24,37 @@ Before you begin, ensure you have the following:
 ## Installation
 - **Clone the repo**
 - **npm install**
+
+## API Endpoint
+
+### POST `/send`
+
+This endpoint generates content based on the input and sends an email or SMS based on the specified action.
+
+#### Request Body
+
+- **Content-Type**: `application/json`
+- **Body**:
+  ```json
+  {
+    "input": "Your text input here",
+    "action": "email" | "sms" | "email_and_sms"
+  }
+
+
+### Response
+
+- **Success**:
+  ```json
+  {
+    "message": "Email sent successfully" | "SMS sent successfully" | "Email and SMS sent successfully"
+  }
+
+- **Error**:
+```json
+{
+  "error": "Error message"
+}
+
+
 
