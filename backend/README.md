@@ -37,8 +37,7 @@ This endpoint generates content based on the input and sends an email or SMS bas
 - **Body**:
   ```json
   {
-    "input": "Your text input here",
-    "action": "email" | "sms" | "email_and_sms"
+    "input": "Your text input here"
   }
 
 
