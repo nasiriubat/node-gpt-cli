@@ -2,6 +2,11 @@
 
 This project is a versatile utility built as an assignment for my university teacher at Tampere University. It integrates GPT-based text generation with functionalities for sending SMS messages via Twilio and emails via SMTP.
 
+## Branch
+- **main and cli branch contains the cli edition**
+- **full-stack branch contains the express and react app.**
+- **See README.md for more details on each branch**
+
 ## Features
 
 - **Gemini AI Model**: Utilizes the free Gemini GPT model `gemini-1.5-flash` for text generation.
